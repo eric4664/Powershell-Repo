@@ -17,16 +17,22 @@ function Show-Status {
 
 function Invoke-DownloadFile {
     param(
-        [string]$Url
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Url,
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$StorePath
     )
     $FileName = [System.IO.Path]::GetFileName($Url)
-    $FilePath = "C:\$FileName"
+    $FilePath = "$StorePath\$FileName"
+    $resolveIP = "10.0.0.1"
 
     # check network
-    if (!((Resolve-DnsName xensor.evaair.com).IPAddress -eq "10.0.0.1")) { Show-Status "Network is not in the company" -Tag FAIL; exit } # change ip if needed
+    if (!((Resolve-DnsName xensor.evaair.com).IPAddress -eq $resolveIP)) { Show-Status "Network is not in the company" -Tag FAIL; exit }
     $Net_Hash = (Invoke-WebRequest -Uri "$Url" -Method Head).headers["x-content-sha256"] # need to add custom header for URL
     if (!$Net_Hash) { Show-Status "Fetch $FileName hash fail." -Tag FAIL; exit }
-    if (!($Net_Hash -match "^[0-9a-zA-Z]{64}$")) {Show-Status "The format fetching form $FileName hash is not right." -Tag FAIL; exit}
+    if (!($Net_Hash -match "^[0-9a-zA-Z]{64}$")) {Show-Status "The format fetching form $FileName hash is not right." -Tag FAIL; exit} # check sha256 format
 
     # download 
     Invoke-WebRequest -Uri "$Url" -OutFile "$FilePath" -UseBasicParsing 
@@ -43,6 +49,7 @@ function Invoke-DownloadFile {
 }
 
 $DownloadURL = ""
+$DownloadPath = ""
 
 Show-Status "Downloading..."
-Invoke-DownloadFile -Url $DownloadURL
+Invoke-DownloadFile -Url $DownloadURL -StorePath $DownloadPath
