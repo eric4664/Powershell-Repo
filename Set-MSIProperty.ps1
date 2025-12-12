@@ -14,4 +14,5 @@ function Set-MSIProperty {
     [System.Runtime.InteropServices.Marshal]::ReleaseComObject($installer) | Out-Null
 }
 
-Set-MSIProperty -Path = "C:\Users\User\Desktop\test.msi" -Comment "C:\Users\User\Desktop\test.cfg"
+$newComment = Get-Content -Path "C:\Users\User\Desktop\test.cfg" -Raw
+Set-MSIProperty -Path = "C:\Users\User\Desktop\test.msi" -Comment $newComment
