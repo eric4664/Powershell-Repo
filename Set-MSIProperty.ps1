@@ -1,10 +1,12 @@
 function Set-MSIProperty {
-    $msiPath = "C:\Users\User\Desktop\test.msi"
-    $newComment = Get-Content "C:\Users\User\Desktop\test.cfg"
+    param(
+        [string]$Path,
+        [string]$Comment
+    )
     $installer = New-Object -ComObject WindowsInstaller.Installer
-    $database = $installer.OpenDatabase($msiPath, 1)  # 1 = Read/Write in transaction mode
+    $database = $installer.OpenDatabase($Path, 1)  # 1 = Read/Write in transaction mode
     $summaryInfo = $database.SummaryInformation(4)
-    $summaryInfo.Property(6) = "$newComment"  # Property 6 = Comments
+    $summaryInfo.Property(6) = "$Comment"  # Property 6 = Comments
     $summaryInfo.Persist()
     $database.Commit()
     [System.Runtime.InteropServices.Marshal]::ReleaseComObject($summaryInfo) | Out-Null
@@ -12,4 +14,4 @@ function Set-MSIProperty {
     [System.Runtime.InteropServices.Marshal]::ReleaseComObject($installer) | Out-Null
 }
 
-Set-MSIProperty
+Set-MSIProperty -Path = "C:\Users\User\Desktop\test.msi" -Comment "C:\Users\User\Desktop\test.cfg"
